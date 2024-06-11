@@ -48,12 +48,3 @@ Installation
 
     You can check if the application is working by going to http://localhost:3000 in your browser.
 
-API Usage
-
-The API is accessible under the /api URL. Refer to the API documentation for more information on the routes and parameters.
-Contributing
-
-Please read the CONTRIBUTING.md file before making any contributions.
-License
-
-This project is licensed under the MIT license. See the LICENSE file for more information.
