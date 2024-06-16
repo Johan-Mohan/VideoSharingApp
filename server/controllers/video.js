@@ -153,14 +153,18 @@ export const getBySpecificTags = async (req, res, next) => {
     }
 };
 
+
 export const search = async (req, res, next) => {
     const query = req.query.q;
+    console.log("Received query:", query);
     try {
         const videos = await Video.find({
             title: { $regex: query, $options: "i" },
         }).limit(40);
+        console.log("Found videos:", videos);
         res.status(200).json(videos);
     } catch (err) {
+        console.error("Error in search function:", err);
         next(err);
     }
 };

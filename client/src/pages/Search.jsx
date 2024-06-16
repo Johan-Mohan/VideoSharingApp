@@ -12,20 +12,42 @@ const Container = styled.div`
 
 const Search = () => {
   const [videos, setVideos] = useState([]);
-  const query = useLocation().search;
+  const [error, setError] = useState(null);
+  const query = new URLSearchParams(useLocation().search).get("q");
+  const searchType = new URLSearchParams(useLocation().search).get("type");
 
   useEffect(() => {
     const fetchVideos = async () => {
-      const res = await axios.get(`/videos/specificTags${query}`);
-      setVideos(res.data);
+      try {
+        console.log("Fetching videos with query:", query, "and type:", searchType);
+        let res;
+        if (searchType === "title") {
+          res = await axios.get(`/videos/search?q=${query}`);
+        } else if (searchType === "tags") {
+          res = await axios.get(`/videos/specificTags?q=${query}`);
+        }
+        console.log("Response data:", res.data);
+        setVideos(res.data);
+      } catch (err) {
+        console.error("Error fetching videos:", err);
+        setError(err);
+      }
     };
-    fetchVideos();
-  }, [query]);
+
+    if (query) {
+      fetchVideos();
+    }
+  }, [query, searchType]);
+
   return (
     <Container>
-      {videos.map((video) => (
-        <Card key={video._id} video={video} />
-      ))}
+      {error ? (
+        <p>There was an error loading the videos. Please try again later.</p>
+      ) : (
+        videos.map((video) => (
+          <Card key={video._id} video={video} />
+        ))
+      )}
     </Container>
   );
 };

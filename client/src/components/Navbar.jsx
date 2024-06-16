@@ -5,10 +5,9 @@ import SearchOutlinedIcon from "@mui/icons-material/SearchOutlined";
 import VideoCallOutlinedIcon from "@mui/icons-material/VideoCallOutlined";
 import NotificationsNoneIcon from "@mui/icons-material/NotificationsNone";
 import { Link, useNavigate } from "react-router-dom";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import Upload from "./Upload";
-import { logout } from "../redux/userSlice.js";
-import { useDispatch } from "react-redux";
+import { logout } from "../redux/userSlice";
 import axios from "axios";
 
 const Container = styled.div`
@@ -49,19 +48,15 @@ const Input = styled.input`
 `;
 
 const Button = styled.button`
-  font-size: 20px;
-  margin-bottom: 5px;
-  padding: 5px 15px;
+  font-size: 14px;
+  padding: 5px 10px;
   background-color: transparent;
   border: 1px solid #ff2b2b;
   color: #ff2b2b;
   border-radius: 5px;
   font-weight: 500;
   cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  width: 170px;
+  margin-left: 10px;
 `;
 
 const User = styled.div`
@@ -78,6 +73,7 @@ const Avatar = styled.img`
   border-radius: 50%;
   background-color: #999;
 `;
+
 const UserAvatar = styled.div`
   width: 32px;
   height: 32px;
@@ -85,6 +81,7 @@ const UserAvatar = styled.div`
   background-color: #999;
   cursor: pointer;
 `;
+
 const UserMenu = styled.div`
   position: absolute;
   top: 56px;
@@ -94,6 +91,7 @@ const UserMenu = styled.div`
   padding: 10px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
 `;
+
 const NotificationsMenu = styled.div`
   position: absolute;
   top: 56px;
@@ -142,6 +140,7 @@ const Navbar = () => {
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [videos, setVideos] = useState([]);
   const [comments, setComments] = useState([]);
+  const [searchMode, setSearchMode] = useState("title"); // "title" or "tags"
 
   useEffect(() => {
     const fetchVideosAndComments = async () => {
@@ -169,19 +168,27 @@ const Navbar = () => {
 
   const handleUserClick = () => {
     setMenuOpen(!menuOpen);
-    setNotificationsOpen(false); // bildirimleri kapat
+    setNotificationsOpen(false); // Close notifications
   };
 
   const handleNotificationsClick = () => {
     setNotificationsOpen(!notificationsOpen);
-    setMenuOpen(false); // menüyü kapat
+    setMenuOpen(false); // Close menu
   };
 
   const handleLogout = async (e) => {
-    window.location.href = "/";
     e.preventDefault();
     dispatch(logout());
-    const res = await axios.post("/auth/logout");
+    await axios.post("/auth/logout");
+    window.location.href = "/";
+  };
+
+  const handleSearch = () => {
+    navigate(`/search?q=${q}&type=${searchMode}`);
+  };
+
+  const toggleSearchMode = () => {
+    setSearchMode((prevMode) => (prevMode === "title" ? "tags" : "title"));
   };
 
   return (
@@ -194,14 +201,14 @@ const Navbar = () => {
               onChange={(e) => setQ(e.target.value)}
               onKeyPress={(e) => {
                 if (e.key === "Enter") {
-                  navigate(`/search?q=${q}`);
+                  handleSearch();
                 }
               }}
             />
-            <SearchOutlinedIcon
-              style={{ color: "red" }}
-              onClick={() => navigate(`/search?q=${q}`)}
-            />
+            <SearchOutlinedIcon style={{ color: "red" }} onClick={handleSearch} />
+            <Button onClick={toggleSearchMode}>
+              {searchMode === "title" ? "Searching by Titles" : "Searching by Tags"}
+            </Button>
           </Search>
           {currentUser ? (
             <User>
